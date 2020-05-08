@@ -27,6 +27,7 @@ services:
       - DRONE_DATABASE_DATASOURCE=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
       - DRONE_SERVER_HOST=${NGROK_SUBDOMAIN}.ngrok.io
       - DRONE_SERVER_PROTO=http
+      - DRONE_REPOSITORY_FILTER=${DRONE_GITHUB_ORG}
       - DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}
       - DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}
 

@@ -1,0 +1,21 @@
+---
+kind: pipeline
+name: include
+
+cache:
+  - path: node_modules
+    hash: yarn.lock
+  - path: something
+  - hash: foo # this should be ignored
+steps:
+  - name: build
+    image: golang:1.11
+    commands:
+      - go get -u github.com/golang/dep/cmd/dep
+      
+---
+kind: secret
+type: external
+data:
+  password: 'drone/docker#password'
+  username: 'drone/docker#username'

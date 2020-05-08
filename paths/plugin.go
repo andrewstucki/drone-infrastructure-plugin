@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"log"
 
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/converter"
@@ -89,7 +88,7 @@ func (p *plugin) Convert(ctx context.Context, req *converter.Request) (*drone.Co
 		"build_trigger":  req.Build.Trigger,
 		"repo_namespace": req.Repo.Namespace,
 		"repo_name":      req.Repo.Name,
-	}).Infoln("initiated")
+	}).Debugln("initiated path skipping convert plugin")
 
 	pipelines := []*pipeline{}
 
@@ -133,8 +132,7 @@ func (p *plugin) Convert(ctx context.Context, req *converter.Request) (*drone.Co
 				"repo_namespace": req.Repo.Namespace,
 				"repo_name":      req.Repo.Name,
 				"pipeline_name":  p.Name,
-			}).Infoln("skipping part of pipeline")
-			log.Printf("%#v", *p)
+			}).Debugln("skipping part of pipeline")
 		}
 	}
 

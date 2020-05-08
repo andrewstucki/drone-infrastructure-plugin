@@ -1,0 +1,80 @@
+name: include
+kind: pipeline
+steps:
+- image: andrewstucki/s3-cache
+  name: Restore node_modules
+  settings:
+    access_key:
+      from_secret: cache_access_key
+    hash: yarn.lock
+    pull: true
+    restore: true
+    secret_key:
+      from_secret: cache_secret_key
+- image: andrewstucki/s3-cache
+  name: Restore something
+  settings:
+    access_key:
+      from_secret: cache_access_key
+    hash: ""
+    pull: true
+    restore: true
+    secret_key:
+      from_secret: cache_secret_key
+- commands:
+  - go get -u github.com/golang/dep/cmd/dep
+  image: golang:1.11
+  name: build
+- image: andrewstucki/s3-cache
+  name: Uploading node_modules
+  settings:
+    access_key:
+      from_secret: cache_access_key
+    hash: yarn.lock
+    mount:
+    - node_modules
+    pull: true
+    rebuild: true
+    secret_key:
+      from_secret: cache_secret_key
+- image: andrewstucki/s3-cache
+  name: Setting TTL for node_modules
+  settings:
+    access_key:
+      from_secret: cache_access_key
+    flush: true
+    flush_age: 5
+    hash: yarn.lock
+    pull: true
+    secret_key:
+      from_secret: cache_secret_key
+- image: andrewstucki/s3-cache
+  name: Uploading something
+  settings:
+    access_key:
+      from_secret: cache_access_key
+    hash: ""
+    mount:
+    - something
+    pull: true
+    rebuild: true
+    secret_key:
+      from_secret: cache_secret_key
+- image: andrewstucki/s3-cache
+  name: Setting TTL for something
+  settings:
+    access_key:
+      from_secret: cache_access_key
+    flush: true
+    flush_age: 5
+    hash: ""
+    pull: true
+    secret_key:
+      from_secret: cache_secret_key
+---
+name: ""
+kind: secret
+data:
+  password: drone/docker#password
+  username: drone/docker#username
+type: external

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/andrewstucki/drone-infrastructure-plugin/cache"
 	"github.com/andrewstucki/drone-infrastructure-plugin/chain"
 	"github.com/andrewstucki/drone-infrastructure-plugin/paths"
 	admitPlugin "github.com/drone/drone-admit-members/plugin"
@@ -68,7 +69,10 @@ func setupAdmission(client *github.Client, spec *spec) []admission.Plugin {
 }
 
 func setupConvert(client *github.Client) []converter.Plugin {
-	return []converter.Plugin{paths.New(client.Repositories)}
+	return []converter.Plugin{
+		cache.New(),
+		paths.New(client.Repositories),
+	}
 }
 
 func healthz(w http.ResponseWriter, r *http.Request) {

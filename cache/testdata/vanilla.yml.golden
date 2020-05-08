@@ -1,0 +1,61 @@
+name: amd64
+kind: pipeline
+steps:
+- commands:
+  - go get -u github.com/golang/dep/cmd/dep
+  - dep ensure
+  - go test ./...
+  - go build -o release/linux/amd64/drone-jsonnet-config github.com/drone/drone-jsonnet-config/cmd/drone-jsonnet-config
+  environment:
+    CGO_ENABLED: 0
+    GOARCH: amd64
+    GOOS: linux
+  image: golang:1.11
+  name: build
+- image: plugins/docker
+  name: publish
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-amd64
+    dockerfile: docker/Dockerfile.linux.amd64
+    password:
+      $secret: password
+    repo: drone/drone-jsonnet
+    username:
+      $secret: username
+platform:
+  arch: amd64
+  os: linux
+workspace:
+  base: /go
+  path: src/github.com/drone/drone-jsonnet-config
+---
+name: manifest
+kind: pipeline
+steps:
+- image: plugins/manifest:1
+  name: upload
+  settings:
+    auto_tag: true
+    ignore_missing: true
+    password:
+      $secret: password
+    spec: docker/manifest.tmpl
+    username:
+      $secret: username
+depends_on:
+- amd64
+platform:
+  arch: amd64
+  os: linux
+trigger:
+  event:
+  - push
+  - tag
+---
+name: ""
+kind: secret
+data:
+  password: drone/docker#password
+  username: drone/docker#username
+type: external
