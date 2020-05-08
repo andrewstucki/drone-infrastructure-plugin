@@ -37,10 +37,6 @@ steps:
             exclude:
               - '*'
     name: include-no-match
-trigger:
-    event:
-        exclude:
-          - '*'
 ---
 name: ""
 kind: secret

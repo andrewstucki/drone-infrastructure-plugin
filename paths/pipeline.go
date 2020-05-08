@@ -11,18 +11,18 @@ type pipeline struct {
 func (p *pipeline) matchOrExclude(changedFiles []string) bool {
 	if p.Trigger.Paths.HasIncludes() || p.Trigger.Paths.HasExcludes() {
 		for _, f := range changedFiles {
-			if p.Trigger.Paths.match(f) {
-				// we want to run the pipeline
-				return false
+			if !p.Trigger.Paths.match(f) {
+				// if only Trigger.Paths is set, Trigger.Attrs will be unset, so it must be initialized
+				if p.Trigger.Attrs == nil {
+					p.Trigger.Attrs = make(map[string]interface{})
+				}
+				p.Trigger.Attrs["event"] = map[string][]string{"exclude": {"*"}}
+				return true
 			}
 		}
 	}
-	// if only Trigger.Paths is set, Trigger.Attrs will be unset, so it must be initialized
-	if p.Trigger.Attrs == nil {
-		p.Trigger.Attrs = make(map[string]interface{})
-	}
-	p.Trigger.Attrs["event"] = map[string][]string{"exclude": {"*"}}
-	return true
+	// we want to run the pipeline
+	return false
 }
 
 func (p *pipeline) update(changedFiles []string) bool {
