@@ -9,6 +9,8 @@ steps:
     hash: yarn.lock
     pull: true
     restore: true
+    root:
+      from_secret: cache_bucket
     secret_key:
       from_secret: cache_secret_key
 - image: andrewstucki/s3-cache
@@ -19,6 +21,8 @@ steps:
     hash: ""
     pull: true
     restore: true
+    root:
+      from_secret: cache_bucket
     secret_key:
       from_secret: cache_secret_key
 - commands:
@@ -35,6 +39,8 @@ steps:
     - node_modules
     pull: true
     rebuild: true
+    root:
+      from_secret: cache_bucket
     secret_key:
       from_secret: cache_secret_key
 - image: andrewstucki/s3-cache
@@ -46,6 +52,8 @@ steps:
     flush_age: 5
     hash: yarn.lock
     pull: true
+    root:
+      from_secret: cache_bucket
     secret_key:
       from_secret: cache_secret_key
 - image: andrewstucki/s3-cache
@@ -58,6 +66,8 @@ steps:
     - something
     pull: true
     rebuild: true
+    root:
+      from_secret: cache_bucket
     secret_key:
       from_secret: cache_secret_key
 - image: andrewstucki/s3-cache
@@ -69,6 +79,8 @@ steps:
     flush_age: 5
     hash: ""
     pull: true
+    root:
+      from_secret: cache_bucket
     secret_key:
       from_secret: cache_secret_key
 ---

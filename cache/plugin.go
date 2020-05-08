@@ -48,6 +48,9 @@ func (s *stage) update() bool {
 				"pull":    true,
 				"restore": true,
 				"hash":    c.Hash,
+				"root": map[string]interface{}{
+					"from_secret": "cache_bucket",
+				},
 				"access_key": map[string]interface{}{
 					"from_secret": "cache_access_key",
 				},
@@ -65,6 +68,9 @@ func (s *stage) update() bool {
 				"rebuild": true,
 				"hash":    c.Hash,
 				"mount":   []string{c.Path},
+				"root": map[string]interface{}{
+					"from_secret": "cache_bucket",
+				},
 				"access_key": map[string]interface{}{
 					"from_secret": "cache_access_key",
 				},
@@ -82,6 +88,9 @@ func (s *stage) update() bool {
 				"flush":     true,
 				"hash":      c.Hash,
 				"flush_age": ttl,
+				"root": map[string]interface{}{
+					"from_secret": "cache_bucket",
+				},
 				"access_key": map[string]interface{}{
 					"from_secret": "cache_access_key",
 				},
