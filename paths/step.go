@@ -6,17 +6,15 @@ type step struct {
 }
 
 func (s *step) matchOrExclude(changedFiles []string) bool {
-	if s.When.Paths.HasIncludes() || s.When.Paths.HasExcludes() {
-		for _, p := range changedFiles {
-			if !s.When.Paths.match(p) {
-				// if only When.Paths is set, When.Attrs will be unset, so it must be initialized
-				if s.When.Attrs == nil {
-					s.When.Attrs = make(map[string]interface{})
-				}
-				s.When.Attrs["event"] = map[string][]string{"exclude": {"*"}}
-				return true
-			}
+	for _, p := range changedFiles {
+		if s.When.Paths.match(p) {
+			return false
 		}
 	}
-	return false
+	// if only When.Paths is set, When.Attrs will be unset, so it must be initialized
+	if s.When.Attrs == nil {
+		s.When.Attrs = make(map[string]interface{})
+	}
+	s.When.Attrs["event"] = map[string][]string{"exclude": {"*"}}
+	return true
 }
