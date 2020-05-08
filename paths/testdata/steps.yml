@@ -1,0 +1,43 @@
+---
+kind: pipeline
+
+steps:
+  - name: include
+    when:
+      paths:
+        include:
+          - README.md
+  - name: exclude
+    when:
+      paths:
+        exclude:
+          - README.md
+      event:
+        - push
+        - tag
+  - name: exclude-include
+    when:
+      paths:
+        include:
+          - README.md
+        exclude:
+          - README.md
+      event:
+        - push
+        - tag
+  - name: exclude-no-match
+    when:
+      paths:
+        exclude:
+          - no-match.md
+  - name: include-no-match
+    when:
+      paths:
+        include:
+          - no-match.md
+---
+kind: secret
+type: external
+data:
+  password: 'drone/docker#password'
+  username: 'drone/docker#username'

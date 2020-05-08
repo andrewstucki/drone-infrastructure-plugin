@@ -1,0 +1,57 @@
+---
+kind: pipeline
+name: include
+
+trigger:
+  paths:
+    include:
+      - README.md
+
+---
+kind: pipeline
+name: exclude
+
+trigger:
+  paths:
+    exclude:
+      - README.md
+  event:
+    - push
+    - tag
+
+---
+kind: pipeline
+name: exclude-include
+
+trigger:
+  paths:
+    include:
+      - README.md
+    exclude:
+      - README.md
+  event:
+    - push
+    - tag
+
+---
+kind: pipeline
+name: exclude-no-match
+
+trigger:
+  paths:
+    exclude:
+      - no-match.md
+---
+kind: pipeline
+name: include-no-match
+
+trigger:
+  paths:
+    include:
+      - no-match.md
+---
+kind: secret
+type: external
+data:
+  password: 'drone/docker#password'
+  username: 'drone/docker#username'
