@@ -21,8 +21,8 @@ services:
       - DRONE_RPC_SECRET=${DRONE_SECRET}
       - DRONE_ADMISSION_PLUGIN_SECRET=${DRONE_SECRET}
       - DRONE_ADMISSION_PLUGIN_ENDPOINT=http://drone-plugin:3000/admit
-      - DRONE_CONVERSION_PLUGIN_SECRET=${DRONE_SECRET}
-      - DRONE_CONVERSION_PLUGIN_ENDPOINT=http://drone-plugin:3000/convert
+      - DRONE_CONVERT_PLUGIN_SECRET=${DRONE_SECRET}
+      - DRONE_CONVERT_PLUGIN_ENDPOINT=http://drone-plugin:3000/convert
       - DRONE_DATABASE_DRIVER=postgres
       - DRONE_DATABASE_DATASOURCE=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
       - DRONE_SERVER_HOST=${NGROK_SUBDOMAIN}.ngrok.io
