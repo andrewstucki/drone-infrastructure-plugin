@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/andrewstucki/drone-infrastructure-plugin/runner"
 	"github.com/drone/signal"
-
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
@@ -31,6 +31,9 @@ type spec struct {
 	Containers []string      `envconfig:"DRONE_GC_IGNORE_CONTAINERS"`
 	Interval   time.Duration `envconfig:"DRONE_GC_INTERVAL" default:"5m"`
 	Cache      string        `envconfig:"DRONE_GC_CACHE" default:"5gb"`
+
+	// runner settings
+	RunnerConfig runner.Config
 }
 
 func main() {
@@ -55,7 +58,13 @@ func main() {
 	server := initializeServer(spec)
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		if err := runner.Run(ctx, &spec.RunnerConfig); err != nil {
+			logrus.WithError(err).Fatalln("error running docker runner")
+		}
+	}()
 	go func() {
 		defer wg.Done()
 		runGC(ctx, collector, spec)
