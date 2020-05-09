@@ -141,7 +141,16 @@ func Run(ctx context.Context, config *Config) error {
 			},
 			Environ:  provider.Static(config.Runner.Environ),
 			Registry: registry.File(config.Docker.Config),
-			Secret:   secret.StaticVars(config.Runner.Secrets),
+			Secret: secret.Combine(
+				secret.StaticVars(
+					config.Runner.Secrets,
+				),
+				secret.External(
+					"localhost:3000",
+					config.Client.Secret,
+					true,
+				),
+			),
 		},
 		Exec: runtime.NewExecer(
 			tracer,
