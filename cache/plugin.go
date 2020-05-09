@@ -157,8 +157,8 @@ func (p *plugin) Convert(ctx context.Context, req *converter.Request) (*drone.Co
 		Kind: "secret",
 		Attrs: map[string]interface{}{
 			"get": map[string]interface{}{
-				"path": "drone/management-access-key",
-				"name": "cache_access_key",
+				"path": "drone",
+				"name": "cache-access-key",
 			},
 		},
 	}, &stage{
@@ -166,8 +166,8 @@ func (p *plugin) Convert(ctx context.Context, req *converter.Request) (*drone.Co
 		Kind: "secret",
 		Attrs: map[string]interface{}{
 			"get": map[string]interface{}{
-				"path": "drone/management-secret-key",
-				"name": "cache_secret_key",
+				"path": "drone",
+				"name": "cache-secret-key",
 			},
 		},
 	}, &stage{
@@ -175,8 +175,8 @@ func (p *plugin) Convert(ctx context.Context, req *converter.Request) (*drone.Co
 		Kind: "secret",
 		Attrs: map[string]interface{}{
 			"get": map[string]interface{}{
-				"path": "drone/cache-bucket",
-				"name": "cache_bucket",
+				"path": "drone",
+				"name": "cache-bucket",
 			},
 		},
 	})

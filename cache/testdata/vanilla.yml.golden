@@ -63,17 +63,17 @@ type: external
 name: cache_access_key
 kind: secret
 get:
-  name: cache_access_key
-  path: drone/management-access-key
+  name: cache-access-key
+  path: drone
 ---
 name: cache_secret_key
 kind: secret
 get:
-  name: cache_secret_key
-  path: drone/management-secret-key
+  name: cache-secret-key
+  path: drone
 ---
 name: cache_bucket
 kind: secret
 get:
-  name: cache_bucket
-  path: drone/cache-bucket
+  name: cache-bucket
+  path: drone
