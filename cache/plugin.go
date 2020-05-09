@@ -152,6 +152,34 @@ func (p *plugin) Convert(ctx context.Context, req *converter.Request) (*drone.Co
 		}
 	}
 
+	stages = append(stages, &stage{
+		Name: "cache_access_key",
+		Kind: "secret",
+		Attrs: map[string]interface{}{
+			"get": map[string]interface{}{
+				"path": "drone/management-access-key",
+				"name": "cache_access_key",
+			},
+		},
+	}, &stage{
+		Name: "cache_secret_key",
+		Kind: "secret",
+		Attrs: map[string]interface{}{
+			"get": map[string]interface{}{
+				"path": "drone/management-secret-key",
+				"name": "cache_secret_key",
+			},
+		},
+	}, &stage{
+		Name: "cache_bucket",
+		Kind: "secret",
+		Attrs: map[string]interface{}{
+			"get": map[string]interface{}{
+				"path": "drone/cache-bucket",
+				"name": "cache_bucket",
+			},
+		},
+	})
 	buffer := new(bytes.Buffer)
 	encoder := yaml.NewEncoder(buffer)
 	for _, s := range stages {

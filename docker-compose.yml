@@ -37,7 +37,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - DRONE_DEBUG=true
       - DRONE_SECRET=${DRONE_SECRET}
       - DRONE_GITHUB_TOKEN=${DRONE_GITHUB_TOKEN}
       - DRONE_GITHUB_ORG=${DRONE_GITHUB_ORG}

@@ -90,3 +90,21 @@ data:
   password: drone/docker#password
   username: drone/docker#username
 type: external
+---
+name: cache_access_key
+kind: secret
+get:
+  name: cache_access_key
+  path: drone/management-access-key
+---
+name: cache_secret_key
+kind: secret
+get:
+  name: cache_secret_key
+  path: drone/management-secret-key
+---
+name: cache_bucket
+kind: secret
+get:
+  name: cache_bucket
+  path: drone/cache-bucket

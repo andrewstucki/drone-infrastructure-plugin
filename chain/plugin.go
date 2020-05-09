@@ -7,6 +7,7 @@ import (
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/admission"
 	"github.com/drone/drone-go/plugin/converter"
+	"github.com/drone/drone-go/plugin/secret"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,6 +15,7 @@ import (
 type ChainedPlugin struct {
 	converters []converter.Plugin
 	admit      []admission.Plugin
+	secrets    []secret.Plugin
 }
 
 // New initializes a ChainedPlugin instance
@@ -71,4 +73,29 @@ func (p *ChainedPlugin) Admit(ctx context.Context, req *admission.Request) (*dro
 // AdmissionHandler wraps the plugin in an admission handler
 func (p *ChainedPlugin) AdmissionHandler(secret string) http.Handler {
 	return admission.Handler(p, secret, logrus.StandardLogger())
+}
+
+// WithSecrets adds a series of secret plugins
+func (p *ChainedPlugin) WithSecrets(secrets []secret.Plugin) *ChainedPlugin {
+	p.secrets = secrets
+	return p
+}
+
+// Find calls all of the secret plugins that are chained and returns the first secret it finds
+func (p *ChainedPlugin) Find(ctx context.Context, req *secret.Request) (*drone.Secret, error) {
+	for _, s := range p.secrets {
+		secret, err := s.Find(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		if secret != nil {
+			return secret, nil
+		}
+	}
+	return nil, nil
+}
+
+// SecretHandler wraps the plugin in a secret handler
+func (p *ChainedPlugin) SecretHandler(s string) http.Handler {
+	return secret.Handler(s, p, logrus.StandardLogger())
 }
