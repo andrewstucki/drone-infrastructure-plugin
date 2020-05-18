@@ -42,7 +42,7 @@ func (s *stage) update() bool {
 			ttl = 5 // days
 		}
 		restoreSteps = append(restoreSteps, map[string]interface{}{
-			"name":  fmt.Sprintf("Restore %s", c.Path),
+			"name":  fmt.Sprintf("Restoring cached path '%s'", c.Path),
 			"image": "andrewstucki/s3-cache",
 			"settings": map[string]interface{}{
 				"pull":    true,
@@ -61,33 +61,13 @@ func (s *stage) update() bool {
 		})
 		// the rebuild step
 		storeSteps = append(storeSteps, map[string]interface{}{
-			"name":  fmt.Sprintf("Uploading %s", c.Path),
+			"name":  fmt.Sprintf("Uploading cached path '%s'", c.Path),
 			"image": "andrewstucki/s3-cache",
 			"settings": map[string]interface{}{
 				"pull":    true,
 				"rebuild": true,
 				"hash":    c.Hash,
 				"mount":   []string{c.Path},
-				"root": map[string]interface{}{
-					"from_secret": "cache_bucket",
-				},
-				"access_key": map[string]interface{}{
-					"from_secret": "cache_access_key",
-				},
-				"secret_key": map[string]interface{}{
-					"from_secret": "cache_secret_key",
-				},
-			},
-		})
-		// the flush step
-		storeSteps = append(storeSteps, map[string]interface{}{
-			"name":  fmt.Sprintf("Setting TTL for %s", c.Path),
-			"image": "andrewstucki/s3-cache",
-			"settings": map[string]interface{}{
-				"pull":      true,
-				"flush":     true,
-				"hash":      c.Hash,
-				"flush_age": ttl,
 				"root": map[string]interface{}{
 					"from_secret": "cache_bucket",
 				},

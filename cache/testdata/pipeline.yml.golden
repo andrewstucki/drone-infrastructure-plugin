@@ -2,7 +2,7 @@ name: include
 kind: pipeline
 steps:
 - image: andrewstucki/s3-cache
-  name: Restore node_modules
+  name: Restoring cached path 'node_modules'
   settings:
     access_key:
       from_secret: cache_access_key
@@ -14,7 +14,7 @@ steps:
     secret_key:
       from_secret: cache_secret_key
 - image: andrewstucki/s3-cache
-  name: Restore something
+  name: Restoring cached path 'something'
   settings:
     access_key:
       from_secret: cache_access_key
@@ -30,7 +30,7 @@ steps:
   image: golang:1.11
   name: build
 - image: andrewstucki/s3-cache
-  name: Uploading node_modules
+  name: Uploading cached path 'node_modules'
   settings:
     access_key:
       from_secret: cache_access_key
@@ -44,20 +44,7 @@ steps:
     secret_key:
       from_secret: cache_secret_key
 - image: andrewstucki/s3-cache
-  name: Setting TTL for node_modules
-  settings:
-    access_key:
-      from_secret: cache_access_key
-    flush: true
-    flush_age: 5
-    hash: yarn.lock
-    pull: true
-    root:
-      from_secret: cache_bucket
-    secret_key:
-      from_secret: cache_secret_key
-- image: andrewstucki/s3-cache
-  name: Uploading something
+  name: Uploading cached path 'something'
   settings:
     access_key:
       from_secret: cache_access_key
@@ -66,19 +53,6 @@ steps:
     - something
     pull: true
     rebuild: true
-    root:
-      from_secret: cache_bucket
-    secret_key:
-      from_secret: cache_secret_key
-- image: andrewstucki/s3-cache
-  name: Setting TTL for something
-  settings:
-    access_key:
-      from_secret: cache_access_key
-    flush: true
-    flush_age: 5
-    hash: ""
-    pull: true
     root:
       from_secret: cache_bucket
     secret_key:
