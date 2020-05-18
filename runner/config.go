@@ -66,6 +66,11 @@ type Config struct {
 		Config string `envconfig:"DRONE_DOCKER_CONFIG"`
 		Stream bool   `envconfig:"DRONE_DOCKER_STREAM_PULL" default:"true"`
 	}
+
+	Secret struct {
+		Endpoint string `envconfig:"DRONE_SECRET_PLUGIN_ENDPOINT"`
+		Token    string `envconfig:"DRONE_SECRET_PLUGIN_TOKEN"`
+	}
 }
 
 func (c *Config) addDefaults() {

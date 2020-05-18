@@ -146,8 +146,8 @@ func Run(ctx context.Context, config *Config) error {
 					config.Runner.Secrets,
 				),
 				secret.External(
-					"http://localhost:3000/secret",
-					config.Client.Secret,
+					config.Secret.Endpoint,
+					config.Secret.Token,
 					true,
 				),
 			),
