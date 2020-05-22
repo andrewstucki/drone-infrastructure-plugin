@@ -9,6 +9,7 @@ import (
 
 	"github.com/andrewstucki/drone-infrastructure-plugin/cache"
 	"github.com/andrewstucki/drone-infrastructure-plugin/chain"
+	"github.com/andrewstucki/drone-infrastructure-plugin/deploy"
 	"github.com/andrewstucki/drone-infrastructure-plugin/paths"
 	"github.com/aws/aws-sdk-go-v2/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
@@ -59,6 +60,7 @@ func setupGithubClient(spec *spec) *github.Client {
 }
 
 func setupSecrets() []secret.Plugin {
+	external.LoadDefaultAWSConfig()
 	cfg, err := external.LoadDefaultAWSConfig()
 	if err != nil {
 		logrus.Fatalln(err)
@@ -110,6 +112,7 @@ func setupConvert(client *github.Client) []converter.Plugin {
 	return []converter.Plugin{
 		cache.New(),
 		paths.New(client.Repositories),
+		deploy.New(),
 	}
 }
 

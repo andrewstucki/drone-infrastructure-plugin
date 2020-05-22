@@ -1,0 +1,130 @@
+kind: pipeline
+type: docker
+name: frontend
+
+cache:
+  - hash: client/package-lock.json
+    path: client/node_modules
+
+steps:
+  - name: Test Frontend
+    image: node:13.8.0-alpine
+    commands:
+      - npm --prefix client install
+      - npm --prefix client run lint
+      - npm --prefix client test
+
+trigger:
+  paths:
+    include:
+      - 'client/**/*.js'
+      - 'client/**/*.ts'
+      - 'client/**/*.jsx'
+      - 'client/**/*.tsx'
+      - 'client/package.json'
+      - 'client/package-lock.json'
+  branch:
+    - master
+    - production
+
+---
+kind: pipeline
+type: docker
+name: backend
+
+cache:
+  - hash: go.sum
+    path: .gocache
+
+steps:
+  - name: postgres
+    image: postgres:11.2-alpine
+    detach: true
+    environment:
+      POSTGRES_DB: test
+  - name: Test Backend
+    image: gracepoint/buffalo:0.15.5-1
+    commands:
+      - /bin/wait-for postgres:5432 -- echo "postgres ready"
+      - buffalo test -v ./...
+    environment:
+      GOCACHE: /drone/src/.gocache
+      TEST_DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/test?sslmode=disable'
+
+trigger:
+  paths:
+    include:
+      - '**/*.go'
+      - 'go.sum'
+      - 'go.sum'
+  branch:
+    - master
+    - production
+
+---
+kind: pipeline
+name: deploy
+
+steps:
+  - name: initialize terraform and ecr
+    image: gracepoint/terraform:0.0.4
+    commands:
+      - 'export IMAGE=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT'
+      - decrypt terraform.tfvars.encrypted > terraform.tfvars
+      - terraform init
+      - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=$IMAGE
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: deploy-access-key
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: deploy-secret-key
+  - name: publish
+    image: andrewstucki/plugin-drone-ecr:1
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
+    settings:
+      auto_tag: true
+      repo: tribe
+      access_key:
+        from_secret: deploy-access-key
+      secret_key:
+        from_secret: deploy-secret-key
+  - name: deploy
+    image: gracepoint/terraform:0.0.4
+    commands:
+      - 'export IMAGE=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT'
+      - terraform apply -auto-approve -var image=$IMAGE
+      - wait-for-ecs `terraform output cluster` $IMAGE
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: deploy-access-key
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: deploy-secret-key
+
+volumes:
+  - name: docker
+    host:
+      path: /var/run/docker.sock
+
+depends_on:
+  - backend
+  - frontend
+
+trigger:
+  branch:
+    - production
+  event:
+    - push
+---
+kind: secret
+name: deploy-access-key
+get:
+  name: cache-access-key
+  path: drone
+---
+kind: secret
+name: deploy-secret-key
+get:
+  name: cache-secret-key
+  path: drone

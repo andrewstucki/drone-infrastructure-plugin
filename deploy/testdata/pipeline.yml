@@ -1,0 +1,17 @@
+kind: pipeline
+name: deploy
+
+deploy:
+  repo: tribe
+  registry: 073c644574500.dkr.ecr.us-east-1.amazonaws.com
+  terraform: gracepoint/terraform:0.0.4
+
+depends_on:
+  - backend
+  - frontend
+
+trigger:
+  branch:
+    - production
+  event:
+    - push

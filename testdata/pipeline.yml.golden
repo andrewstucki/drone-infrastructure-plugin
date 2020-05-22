@@ -1,0 +1,200 @@
+name: frontend
+kind: pipeline
+steps:
+  - image: andrewstucki/s3-cache
+    name: Restoring cached path 'client/node_modules'
+    settings:
+        access_key:
+            from_secret: cache_access_key
+        hash: client/package-lock.json
+        pull: true
+        restore: true
+        root:
+            from_secret: cache_bucket
+        secret_key:
+            from_secret: cache_secret_key
+  - commands:
+      - npm --prefix client install
+      - npm --prefix client run lint
+      - npm --prefix client test
+    image: node:13.8.0-alpine
+    name: Test Frontend
+  - image: andrewstucki/s3-cache
+    name: Uploading cached path 'client/node_modules'
+    settings:
+        access_key:
+            from_secret: cache_access_key
+        hash: client/package-lock.json
+        mount:
+          - client/node_modules
+        pull: true
+        rebuild: true
+        root:
+            from_secret: cache_bucket
+        secret_key:
+            from_secret: cache_secret_key
+trigger:
+    branch:
+      - master
+      - production
+    event:
+        exclude:
+          - '*'
+    paths:
+        include:
+          - client/**/*.js
+          - client/**/*.ts
+          - client/**/*.jsx
+          - client/**/*.tsx
+          - client/package.json
+          - client/package-lock.json
+type: docker
+---
+name: backend
+kind: pipeline
+steps:
+  - image: andrewstucki/s3-cache
+    name: Restoring cached path '.gocache'
+    settings:
+        access_key:
+            from_secret: cache_access_key
+        hash: go.sum
+        pull: true
+        restore: true
+        root:
+            from_secret: cache_bucket
+        secret_key:
+            from_secret: cache_secret_key
+  - detach: true
+    environment:
+        POSTGRES_DB: test
+    image: postgres:11.2-alpine
+    name: postgres
+  - commands:
+      - /bin/wait-for postgres:5432 -- echo "postgres ready"
+      - buffalo test -v ./...
+    environment:
+        GOCACHE: /drone/src/.gocache
+        TEST_DATABASE_URL: postgres://postgres:postgres@postgres:5432/test?sslmode=disable
+    image: gracepoint/buffalo:0.15.5-1
+    name: Test Backend
+  - image: andrewstucki/s3-cache
+    name: Uploading cached path '.gocache'
+    settings:
+        access_key:
+            from_secret: cache_access_key
+        hash: go.sum
+        mount:
+          - .gocache
+        pull: true
+        rebuild: true
+        root:
+            from_secret: cache_bucket
+        secret_key:
+            from_secret: cache_secret_key
+trigger:
+    branch:
+      - master
+      - production
+    event:
+        exclude:
+          - '*'
+    paths:
+        include:
+          - '**/*.go'
+          - go.sum
+          - go.sum
+type: docker
+---
+name: deploy
+kind: pipeline
+steps:
+  - commands:
+      - export IMAGE=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - decrypt terraform.tfvars.encrypted > terraform.tfvars
+      - terraform init
+      - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=$IMAGE
+    environment:
+        AWS_ACCESS_KEY_ID:
+            from_secret: deploy-access-key
+        AWS_SECRET_ACCESS_KEY:
+            from_secret: deploy-secret-key
+    image: gracepoint/terraform:0.0.4
+    name: initialize terraform and ecr
+  - image: andrewstucki/plugin-drone-ecr:1
+    name: publish
+    settings:
+        access_key:
+            from_secret: deploy-access-key
+        auto_tag: true
+        repo: tribe
+        secret_key:
+            from_secret: deploy-secret-key
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
+  - commands:
+      - export IMAGE=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - terraform apply -auto-approve -var image=$IMAGE
+      - wait-for-ecs `terraform output cluster` $IMAGE
+    environment:
+        AWS_ACCESS_KEY_ID:
+            from_secret: deploy-access-key
+        AWS_SECRET_ACCESS_KEY:
+            from_secret: deploy-secret-key
+    image: gracepoint/terraform:0.0.4
+    name: deploy
+volumes:
+  - host:
+        path: /var/run/docker.sock
+    name: docker
+depends_on:
+  - backend
+  - frontend
+trigger:
+    branch:
+      - production
+    event:
+      - push
+---
+name: deploy-access-key
+kind: secret
+get:
+    name: cache-access-key
+    path: drone
+---
+name: deploy-secret-key
+kind: secret
+get:
+    name: cache-secret-key
+    path: drone
+---
+name: cache_access_key
+kind: secret
+get:
+    name: cache-access-key
+    path: drone
+---
+name: cache_secret_key
+kind: secret
+get:
+    name: cache-secret-key
+    path: drone
+---
+name: cache_bucket
+kind: secret
+get:
+    name: cache-bucket
+    path: drone
+---
+name: deploy_access_key
+kind: secret
+get:
+    name: deploy-access-key
+    path: drone
+---
+name: deploy_secret_key
+kind: secret
+get:
+    name: deploy-secret-key
+    path: drone
