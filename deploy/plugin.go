@@ -81,7 +81,7 @@ func (p *pipeline) update() error {
 		})
 		// apply
 		p.Steps = append(p.Steps, map[string]interface{}{
-			"name":  "initialize terraform and ecr",
+			"name":  "deploy",
 			"image": terraform,
 			"commands": []string{
 				fmt.Sprintf("terraform apply -auto-approve -var image=%s", image),

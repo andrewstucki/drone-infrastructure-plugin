@@ -110,38 +110,36 @@ name: deploy
 kind: pipeline
 steps:
   - commands:
-      - export IMAGE=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
       - decrypt terraform.tfvars.encrypted > terraform.tfvars
       - terraform init
-      - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=$IMAGE
+      - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
     environment:
         AWS_ACCESS_KEY_ID:
-            from_secret: deploy-access-key
+            from_secret: deploy_access_key
         AWS_SECRET_ACCESS_KEY:
-            from_secret: deploy-secret-key
+            from_secret: deploy_secret_key
     image: gracepoint/terraform:0.0.4
     name: initialize terraform and ecr
   - image: andrewstucki/plugin-drone-ecr:1
     name: publish
     settings:
         access_key:
-            from_secret: deploy-access-key
+            from_secret: deploy_access_key
         auto_tag: true
         repo: tribe
         secret_key:
-            from_secret: deploy-secret-key
+            from_secret: deploy_secret_key
     volumes:
       - name: docker
         path: /var/run/docker.sock
   - commands:
-      - export IMAGE=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
-      - terraform apply -auto-approve -var image=$IMAGE
-      - wait-for-ecs `terraform output cluster` $IMAGE
+      - terraform apply -auto-approve -var image=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - wait-for-ecs `terraform output cluster` 073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
     environment:
         AWS_ACCESS_KEY_ID:
-            from_secret: deploy-access-key
+            from_secret: deploy_access_key
         AWS_SECRET_ACCESS_KEY:
-            from_secret: deploy-secret-key
+            from_secret: deploy_secret_key
     image: gracepoint/terraform:0.0.4
     name: deploy
 volumes:
@@ -156,18 +154,6 @@ trigger:
       - production
     event:
       - push
----
-name: deploy-access-key
-kind: secret
-get:
-    name: cache-access-key
-    path: drone
----
-name: deploy-secret-key
-kind: secret
-get:
-    name: cache-secret-key
-    path: drone
 ---
 name: cache_access_key
 kind: secret
