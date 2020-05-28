@@ -28,6 +28,7 @@ type pipeline struct {
 		Repo      string `yaml:"repo"`
 		Registry  string `yaml:"registry"`
 		Terraform string `yaml:"terraform"`
+		Region    string `yaml:"region"`
 	} `yaml:"deploy,omitempty"`
 	Attrs map[string]interface{} `yaml:",inline"`
 }
@@ -37,6 +38,10 @@ func (p *pipeline) update() error {
 		terraform := p.Deploy.Terraform
 		if terraform == "" {
 			terraform = "gracepoint/terraform:0.0.4"
+		}
+		region := p.Deploy.Region
+		if region == "" {
+			region = "us-east-1"
 		}
 		repo := p.Deploy.Repo
 		image := fmt.Sprintf("%s/%s:$DRONE_COMMIT", p.Deploy.Registry, p.Deploy.Repo)
@@ -94,6 +99,7 @@ func (p *pipeline) update() error {
 				"AWS_SECRET_ACCESS_KEY": map[string]interface{}{
 					"from_secret": "deploy_secret_key",
 				},
+				"AWS_REGION": region,
 			},
 		})
 

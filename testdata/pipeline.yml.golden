@@ -138,6 +138,7 @@ steps:
     environment:
         AWS_ACCESS_KEY_ID:
             from_secret: deploy_access_key
+        AWS_REGION: us-east-1
         AWS_SECRET_ACCESS_KEY:
             from_secret: deploy_secret_key
     image: gracepoint/terraform:0.0.4

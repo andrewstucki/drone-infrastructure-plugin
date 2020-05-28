@@ -4,7 +4,7 @@ steps:
   - commands:
       - decrypt terraform.tfvars.encrypted > terraform.tfvars
       - terraform init
-      - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=073644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
     environment:
         AWS_ACCESS_KEY_ID:
             from_secret: deploy_access_key
@@ -25,11 +25,12 @@ steps:
       - name: docker
         path: /var/run/docker.sock
   - commands:
-      - terraform apply -auto-approve -var image=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
-      - wait-for-ecs `terraform output cluster` 073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - terraform apply -auto-approve -var image=073644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - wait-for-ecs `terraform output cluster` 073644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
     environment:
         AWS_ACCESS_KEY_ID:
             from_secret: deploy_access_key
+        AWS_REGION: us-east-1
         AWS_SECRET_ACCESS_KEY:
             from_secret: deploy_secret_key
     image: gracepoint/terraform:0.0.4
