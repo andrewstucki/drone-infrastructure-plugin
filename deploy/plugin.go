@@ -99,7 +99,7 @@ func (p *pipeline) update() error {
 				"AWS_SECRET_ACCESS_KEY": map[string]interface{}{
 					"from_secret": "deploy_secret_key",
 				},
-				"AWS_REGION": region,
+				"AWS_DEFAULT_REGION": region,
 			},
 		})
 
