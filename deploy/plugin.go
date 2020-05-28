@@ -90,7 +90,7 @@ func (p *pipeline) update() error {
 			"image": terraform,
 			"commands": []string{
 				fmt.Sprintf("terraform apply -auto-approve -var image=%s", image),
-				fmt.Sprintf("wait-for-ecs `terraform output cluster` %s", image),
+				fmt.Sprintf("wait-for-ecs `terraform output cluster` %s", p.Deploy.Repo),
 			},
 			"environment": map[string]interface{}{
 				"AWS_ACCESS_KEY_ID": map[string]interface{}{

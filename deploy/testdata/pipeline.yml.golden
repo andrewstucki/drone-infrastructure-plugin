@@ -26,7 +26,7 @@ steps:
         path: /var/run/docker.sock
   - commands:
       - terraform apply -auto-approve -var image=073644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
-      - wait-for-ecs `terraform output cluster` 073644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
+      - wait-for-ecs `terraform output cluster` tribe
     environment:
         AWS_ACCESS_KEY_ID:
             from_secret: deploy_access_key
