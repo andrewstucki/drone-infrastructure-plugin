@@ -110,6 +110,7 @@ name: deploy
 kind: pipeline
 steps:
   - commands:
+      - cp /root/.netrc . || true
       - decrypt terraform.tfvars.encrypted > terraform.tfvars
       - terraform init
       - terraform apply -auto-approve -target aws_ecr_repository.repo -var image=073c644574500.dkr.ecr.us-east-1.amazonaws.com/tribe:$DRONE_COMMIT
