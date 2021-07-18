@@ -51,7 +51,7 @@ func (p *pipeline) update() error {
 			"image": terraform,
 			"commands": []string{
 				"cp /root/.netrc . || true",
-				"decrypt terraform.tfvars.encrypted > terraform.tfvars",
+				"decrypt < terraform.tfvars.encrypted > terraform.tfvars",
 				"terraform init",
 				fmt.Sprintf("terraform apply -auto-approve -target aws_ecr_repository.repo -var image=%s", image),
 			},
