@@ -14,7 +14,6 @@ require (
 	github.com/drone/drone-go v1.2.1-0.20200326064413-195394da1018
 	github.com/drone/runner-go v1.6.1-0.20200506182602-d2e6327ade15
 	github.com/drone/signal v1.0.0
-	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/golang/mock v1.4.3
 	github.com/google/go-cmp v0.4.0 // indirect
 	github.com/google/go-github/v28 v28.1.1
@@ -27,6 +26,6 @@ require (
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.2.8
 	gopkg.in/yaml.v3 v3.0.0-20200506231410-2ff61e1afc86
 )
